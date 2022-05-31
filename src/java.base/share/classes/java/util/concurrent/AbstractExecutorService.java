@@ -94,6 +94,10 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * the underlying task
      * @since 1.6
      */
+    // RunnableFuture implements Runnable,Future
+    // FutureTask has a field Callable
+    // FutureTask is a special Runnable
+    // java.util.concurrent.Executors.RunnableAdapter: take runnable change to callable
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return new FutureTask<T>(runnable, value);
     }
@@ -158,6 +162,12 @@ public abstract class AbstractExecutorService implements ExecutorService {
         if (ntasks == 0)
             throw new IllegalArgumentException();
         ArrayList<Future<T>> futures = new ArrayList<>(ntasks);
+        /**
+         * What Do?
+         * 1.Execute Task
+         * 2.package FutureTask
+         * 3.offer a blockingQueue to caller that check the task is over
+         */
         ExecutorCompletionService<T> ecs =
             new ExecutorCompletionService<T>(this);
 
@@ -175,11 +185,14 @@ public abstract class AbstractExecutorService implements ExecutorService {
             Iterator<? extends Callable<T>> it = tasks.iterator();
 
             // Start one task for sure; the rest incrementally
+            // one by one: submit -> poll
             futures.add(ecs.submit(it.next()));
             --ntasks;
             int active = 1;
 
             for (;;) {
+                // where is f from ?->  ecs.submit(it.next())
+                // aways get the first
                 Future<T> f = ecs.poll();
                 if (f == null) {
                     if (ntasks > 0) {
@@ -215,6 +228,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
             throw ee;
 
         } finally {
+            // can't cancel task that  already submitted to ecs
             cancelAll(futures);
         }
     }
@@ -241,6 +255,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
             throw new NullPointerException();
         ArrayList<Future<T>> futures = new ArrayList<>(tasks.size());
         try {
+            // 1.execute one ,save one office copy
             for (Callable<T> t : tasks) {
                 RunnableFuture<T> f = newTaskFor(t);
                 futures.add(f);
@@ -248,6 +263,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
             }
             for (int i = 0, size = futures.size(); i < size; i++) {
                 Future<T> f = futures.get(i);
+                // Block and wait until the task is complete
                 if (!f.isDone()) {
                     try { f.get(); }
                     catch (CancellationException | ExecutionException ignore) {}

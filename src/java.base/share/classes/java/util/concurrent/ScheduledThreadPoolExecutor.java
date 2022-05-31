@@ -340,9 +340,15 @@ public class ScheduledThreadPoolExecutor
             reject(task);
         else {
             super.getQueue().add(task);
+            /**
+             * 1.rs = Running no enter
+             * 2.rs = Stop enter
+             * 3.rs = ShutDown,Customize by user
+             */
             if (!canRunInCurrentRunState(task) && remove(task))
                 task.cancel(false);
             else
+                // start worker
                 ensurePrestart();
         }
     }
@@ -451,6 +457,7 @@ public class ScheduledThreadPoolExecutor
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
     public ScheduledThreadPoolExecutor(int corePoolSize) {
+        // worker destrory when execute over
         super(corePoolSize, Integer.MAX_VALUE,
               DEFAULT_KEEPALIVE_MILLIS, MILLISECONDS,
               new DelayedWorkQueue());

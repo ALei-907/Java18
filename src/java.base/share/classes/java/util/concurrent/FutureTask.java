@@ -162,6 +162,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
+        // if cancel task that state not new,where return false
         if (!(state == NEW && STATE.compareAndSet
               (this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))
             return false;
@@ -278,6 +279,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
      *
      * @param v the value
      */
+    // It changes the state to normal  as soon as it is set a result
     protected void set(V v) {
         if (STATE.compareAndSet(this, NEW, COMPLETING)) {
             outcome = v;
@@ -411,6 +413,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * Removes and signals all waiting threads, invokes done(), and
      * nulls out callable.
      */
+    // invoke Set() and cancel() will be do
     private void finishCompletion() {
         // assert state > COMPLETING;
         for (WaitNode q; (q = waiters) != null;) {

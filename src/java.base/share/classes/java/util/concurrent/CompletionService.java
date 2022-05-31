@@ -99,6 +99,7 @@ public interface CompletionService<V> {
      * @return the Future representing the next completed task
      * @throws InterruptedException if interrupted while waiting
      */
+    // blocking get
     Future<V> take() throws InterruptedException;
 
     /**
@@ -108,6 +109,7 @@ public interface CompletionService<V> {
      * @return the Future representing the next completed task, or
      *         {@code null} if none are present
      */
+    // get result,if no get,return null
     Future<V> poll();
 
     /**

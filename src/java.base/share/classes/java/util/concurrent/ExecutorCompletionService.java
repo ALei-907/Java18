@@ -119,6 +119,7 @@ public class ExecutorCompletionService<V> implements CompletionService<V> {
         }
         private final Future<V> task;
         private final BlockingQueue<Future<V>> completionQueue;
+        // invoke Set() and Cancel() will be do
         protected void done() { completionQueue.add(task); }
     }
 

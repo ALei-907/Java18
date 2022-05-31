@@ -124,7 +124,6 @@ package java.util.concurrent;
 public interface Executor {
 
     /**
-     * 顶级接口: 定义执行Runnable
      * Executes the given command at some time in the future.  The command
      * may execute in a new thread, in a pooled thread, or in the calling
      * thread, at the discretion of the {@code Executor} implementation.
